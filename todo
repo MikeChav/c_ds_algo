@@ -1,0 +1,14 @@
+Needed skillset: 
+- type conversion and interpretation
+- pointers to functions
+
+Graph
+
+Might need to rename functions to avoid conflict e.g. insert in linkedlist vs btree
+
+Replace each of above with generic version - Idea, have constructor require pointer to a function that casts (void *) to appropriate type, and a comparator
+
+Implement relevant algorithm to each DS
+
+Idea for hash: One constructor takes pointer to hash function or a setter to the hash function
+
