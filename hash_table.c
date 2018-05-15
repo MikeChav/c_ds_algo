@@ -12,30 +12,30 @@ hash_table_node* new_hash_table_node() {
 	return new_empty_btree();
 }
 
-hash_table* new_hash_table(hash_table* map, int size) {
-	hash_table* map = (hash_table*) malloc(sizeof(hash_table));
-	map->size = size;
-	map->buckets = (hash_table_node*) malloc(size*sizeof(hash_table_node));
-	map->hash_function = &default_hash_function;
-	return map;
+hash_table* new_hash_table(hash_table* table, int size) {
+	hash_table* table = (hash_table*) malloc(sizeof(hash_table));
+	table->size = size;
+	table->buckets = (hash_table_node*) malloc(size*sizeof(hash_table_node));
+	table->hash_function = &default_hash_function;
+	return table;
 }
 
-void insert(hash_table* map, int n) {
-	insert(map[map->default_hash_function(map, n)], n);
+void insert(hash_table* table, int n) {
+	insert(table[table->default_hash_function(table, n)], n);
 }
 
-boolean delete(hash_table* map, int n) {
-	return delete(map[map->default_hash_function(map, n)], n);
+boolean delete(hash_table* table, int n) {
+	return delete(table[table->default_hash_function(table, n)], n);
 }
 
-boolean search(hash_table* map, int n) {
-	return search(map[map->default_hash_function(map, n)], n);
+boolean search(hash_table* table, int n) {
+	return search(table[table->default_hash_function(table, n)], n);
 }
 
-iterator* get_iterator(hash_table* map) {
+iterator* get_iterator(hash_table* table) {
 	linked_list* ll = new_empty_linked_list();
-	for (int i = 0; i < map->size; i++) {
-		get_iterator_helper(ll, map[i]->root);
+	for (int i = 0; i < table->size; i++) {
+		get_iterator_helper(ll, table[i]->root);
 	}
 	return ll->head;
 }
@@ -49,8 +49,8 @@ void get_iterator_helper(linked_list* ll, btree_node *node) {
 	get_iterator_helper(ll, node->right);
 } 
 
-int default_hash_function(hash_table* map, int value) {
-	return value % map->size;
+int default_hash_function(hash_table* table, int value) {
+	return value % table->size;
 }
 
 
