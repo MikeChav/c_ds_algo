@@ -1,4 +1,5 @@
 #include "btree.h"
+#include "linked_list.h"
 
 typedef struct hash_table {
 	hash_table_node* buckets;
@@ -32,20 +33,20 @@ boolean search(hash_table* map, int n) {
 }
 
 iterator* get_iterator(hash_table* map) {
-	iterator* it = (iterator*) malloc(sizeof(iterator));
+	linked_list* ll = new_empty_linked_list();
 	for (int i = 0; i < map->size; i++) {
-		get_iterator_helper(it, map[i]->root);
+		get_iterator_helper(ll, map[i]->root);
 	}
-	return it;
+	return ll->head;
 }
 
-void get_iterator_helper(iterator *it, btree_node *node) {
+void get_iterator_helper(linked_list* ll, btree_node *node) {
 	if (node == null) {
 		return;
 	}
-	get_iterator_helper(it, node->left);
-	insert(it, node->data);
-	get_iterator_helper(it, node->right);
+	get_iterator_helper(ll, node->left);
+	insert(ll, node->data);
+	get_iterator_helper(ll, node->right);
 } 
 
 int default_hash_function(hash_table* map, int value) {
