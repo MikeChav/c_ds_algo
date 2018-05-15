@@ -3,13 +3,11 @@ Needed skillset:
 - type conversion and interpretation
 - pointers to functions
 
-rework all names to match snake case
-
-Set (BT)
-HashMap
 HashLinkedList
 HashSet
 Graph
+
+Might need to rename functions to avoid conflict e.g. insert in linkedlist vs btree
 
 Replace each of above with generic version - Idea, have constructor require pointer to a function that casts (void *) to appropriate type, and a comparator
 
