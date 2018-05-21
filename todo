@@ -2,6 +2,9 @@ Needed skillset:
 - type conversion and interpretation
 - pointers to functions
 
+--->>> hash_table does not have key-value pair option
+
+Heap
 Graph
 
 Might need to rename functions to avoid conflict e.g. insert in linkedlist vs btree
