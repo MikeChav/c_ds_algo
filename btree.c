@@ -1,143 +1,94 @@
-#include "btree.h"
+#include <stdio.h>
+#include "lib.h"
 
-typedef struct btree_node {
-	char[255] data;
-	struct btree* left;
-	struct btree* right;
-} btree_node;
+boolean btree_insert(btree *self, void *value);
+boolean btree_contains(btree *self, void *value);
+void btree_delete(btree *self, void *value);
+boolean btree_is_leaf(btree *self);
+void* btree_get_value(btree *self);
 
 typedef struct btree {
-	btree_node* root;
-	int size;
+	void* value;
+	TYPE type;
+	struct btree* left;
+	struct btree* right;
+	boolean (*insert)(btree* self, void* value);
+	boolean (*contains)(btree* self, void* value);
+	void (*delete)(btree* self, void* value);
+	boolean (*is_leaf)(btree* self);
+	void* (*get_value)(btree* self);
+	//todo continue adding definitions
 } btree;
 
-btree_node* new_btree_node(char* s) {
-	btree_node * node = (btree_node*) malloc(sizeof(btree_node));
-	strcpy(node->data, s);
-	node->left = null;
-	node->right = null;
-	return node;
+btree* new_btree(void* value, TYPE type) {
+	btree *self = (btree*) malloc(sizeof(btree));
+	self->value = value;
+	self->type = type;
+	self->left = NULL;
+	self->right = NULL;
+	self->insert = btree_insert;
+	self->contains = btree_contains;
+	self->delete = btree_delete;
+	self->is_leaf = btree_is_leaf;
+	self->get_value = btree_get_value;
+	return self;
 }
 
-btree* new_empty_btree() {
-	btree* tree = (btree*) malloc(sizeof(btree));
-	tree->root = null;
-	tree->size = 0;
-	return tree;
+boolean btree_insert(btree *self, void *value) {
+	if (self == NULL) return BAD_REF;
+	int cmp = compare(self->value, value, self->type);
+	if (cmp == COMPARISON_ERROR) return cmp;
+	
+    if (self->left == NULL && cmp < 1) {
+        self->left = new_btree(value, self->type);
+        return true;
+    }
+    if (self->right == NULL && cmp > 0) {
+        self->right = new_btree(value, self->type);
+        return true;
+    }
+	return btree_insert((cmp < 1 ? self->left : self->right) ,value);
 }
 
-btree* new_btree(char *s) {
-	btree* tree = (btree*) malloc(sizeof(btree));
-	tree->root = new_btree_node(s);
-	tree->size = 1;
-	return tree;
+boolean btree_contains(btree *self, void *value) {
+    if (self == NULL) return BAD_REF;
+    int cmp = compare(self->value, value, self->type);
+    if (cmp == COMPARISON_ERROR) return cmp;
+    if (cmp == 0) return true;
+    if (self->left == NULL && cmp < 1) return false;
+    if (self->right == NULL && cmp > 0)  return false;
+    return btree_contains(((cmp < 1) ?  self->left : self->right), value);
+}
+/* TODO Complete:
+boolean btree_delete(btree *self, void *value) {
+	if (self == NULL) return BAD_REF;
+	btree* modified_tree = btree_delete_helper(self, value);
+	return self = modified_tree;
 }
 
-void insert_helper(btree_node* tree, char *s) { //can be simplified
-	int res = strcmp(tree->data, s);
-	if (res == 0)
-		return;
-	if (res < 0) {
-		if (tree->left == null) {
-			tree->left = new_node(s);
-		}
-		else {
-			insert_helper(tree->left, s);
-		}
-	}
-	else {
-		if (tree->right == null) {
-			tree->right = new_node(s);
-		}
-		else {
-			insert_helper(tree->right, s);
-		}
-	}
+btree* btree_delete_helper(btree *self, void *value) {
+	if (self == NULL) return BAD_REF;
+	int cmp = compare(self->value, value, self->type);
+	if (cmp == COMPARISON_ERROR) return cmp;
+
+}
+*/
+
+boolean btree_is_leaf(btree *self) {
+    if (self == NULL) return BAD_REF;
+    return (self->left == NULL && self->right == NULL);
 }
 
-void insert(btree* tree, char *s) {
-	insert_helper(tree->root, s);
+void* btree_get_value(btree *self) {
+    return self->value;
 }
 
-boolean search_helper(btree_node *tree, char* s) {
-	if (tree == null) return false;
-	int res = strcmp(tree->data, s);
-	if (res == 0) return true;
-	if (res < 0) return search_helper(tree->left, s);
-	if (res > 0) return search_helper(tree->right, s);
-	return false;
-}
-
-boolean search(btree* tree, char*s) {
-	return search_helper(tree->root, s);
-}
-
-void inorder_helper(btree_node *tree) {
-	if (tree == null)
-		return;
-	inorder_helper(tree->left);
-	printf("%s ", s);
-	inorder_helper(tree->right);
-}
-
-void print_inorder(btree* tree, char* s) {
-	inorder_helper(tree->root);
-}
-
-void preorder_helper(btree_node *tree) {
-	if (tree == null)
-		return;
-	printf("%s ", s);
-	preorder_helper(tree->left);
-	preorder_helper(tree->right);
-}
-
-void print_preorder(btree* tree) {
-	preorder_helper(tree->root);
-}
-
-
-void postorder_helper(btree_node *tree) {
-	if (tree == null)
-		return;
-	postorder_node(tree->left);
-	postorder_node(tree->right);
-	printf("%s ", s);
-}
-
-void print_postorder(btree* tree) {
-	postorder_helper(tree->root);
-}
-
-boolean delete_helper(btree_node *tree, char* s) { //test extensively
-	if (tree == null)
-		return false;
-	int res = strcmp(tree->data, s);
-	if (res == 0) {
-		if (tree->left == null && tree->right == null)
-			free(tree);
-		if (tree->left == null && tree->right != null) {
-			tree = tree->right;
-		}
-		else if (tree->left != null && tree->right == null) {
-			tree = tree->left;
-		}
-		else {
-			btree *temp = tree->left;
-			tree = tree->right;
-			tree->left = temp;
-		}
-		return true;
-	}
-	if (res < 0) return delete_helper(tree->left, s);
-	if (res > 0) return delete_helper(tree->right, s);
-	return false
-}
-
-boolean delete(btree_node *tree, char *s) {
-	if (delete_helper(tree->root, s)) {
-		tree->size--;
-		return true;
-	}
-	return false;
-}
+/*
+ *Idea: use a struct variant/union to hold all instances of a shared function.
+ 	Then have all the structs hold instances of this struct
+  Idea 2: use a macro/preprocessor command to define some weird ass type, and have it be defined when the DS is declared in the constructor!!!!!
+  To combat issue of several functions having same name, define them using macros, and perhaps `unset` them? Would that preserve the function?
+	
+  Idea 3: Keep a wrapper struct that keeps track of head/root and current, and function pointers, so that we don't have to do it in all structs.
+  	  Keeping track of current also allows to not have `self` anymore (perhaps?)
+ * */

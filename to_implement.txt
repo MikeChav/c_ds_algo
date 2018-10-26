@@ -1,0 +1,12 @@
+Binary Tree
+LinkedList
+ArrayList
+Stack
+Heap
+HashSet
+HashMap
+Graph
+Iterator
+RB Tree or AVL Tree
+
+LEARN C MACROS and USE them to reduce code verbosity 
