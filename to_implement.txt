@@ -1,12 +1,15 @@
-Binary Tree
-LinkedList
 ArrayList
-Stack
 Heap
 HashSet
 HashMap
 Graph
 Iterator
 RB Tree or AVL Tree
+
+_________________ ADDED _________________
+Binary Tree
+LinkedList
+Stack
+
 
 LEARN C MACROS and USE them to reduce code verbosity 

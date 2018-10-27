@@ -1,7 +1,18 @@
 #include <stdio.h>
 #include "lib.h"
 
-typedef struct list {
+typedef struct list list;
+
+list* new_list(void *value, TYPE type);
+boolean list_insert(list* self, void* value);
+boolean list_contains(list* self, void* value);
+boolean list_delete(list* self, void* value);
+void list_sort(list* self);
+void list_print(list* self);
+char* list_to_string(list* self);
+void list_clear(list* self);
+
+struct list {
 	void *value;
 	TYPE type;
 	struct list *prev;
@@ -9,13 +20,14 @@ typedef struct list {
 	boolean (*insert)(list *self, void *value);
 	boolean (*contains)(list *self, void *value);
 	boolean (*delete)(list *self, void *value);
-	void (*sort)(list *self);
+	//void (*sort)(list *self);
 	void (*print)(list *self);
 	char* (*to_string)(list *self);
-} list;
+    void (*clear)(list* self);
+};
 
-list *new_list(void *value, TYPE, type) {
-	list *ll = (list*) malloc(sizeof(list));
+list *new_list(void *value, TYPE type) {
+	list *ll = malloc(sizeof(list));
 	ll->value = value;
 	ll->type = type;
 	ll->prev = NULL;
@@ -23,15 +35,17 @@ list *new_list(void *value, TYPE, type) {
 	ll->insert = list_insert;
 	ll->contains = list_contains;
 	ll->delete = list_delete;
-	ll->sort = list_sort;
+	//ll->sort = list_sort;
 	ll->print = list_print;
 	ll->to_string = list_to_string;
+    ll->clear = list_clear;
 	return ll;
 }
 
 boolean list_insert(list *self, void *value) {
 	if (self == NULL) return BAD_REF;
-	for (list *curr = self; curr->next != NULL; curr = curr->next);
+	list *curr = self;
+    for (; curr->next != NULL; curr = curr->next);
 	curr->next = new_list(value, self->type);
     curr->next->prev = curr;
 	return true;
@@ -76,44 +90,62 @@ Arrays to_array(list *self) {
 }
 */
 
-void print(list *self) {
+void list_print(list *self) {
     for (list *curr; curr != NULL; curr = curr->next) {
         printf("%s\n", curr->to_string(curr));
     }
 }
 
-char* to_string(list *self) {
-    char s[256];
+char* list_to_string(list *self) {
+    char *s = malloc(sizeof(char)*256);
+    int i;
+    char c;
+    char* str;
+    float f;
+    double d;
+    long l;
+    long long ll;
 	switch(self->type) {
 		case INT:
-			int *a = (int*) self->value;
-            sprintf(s, "%d", *a);
+		    i = *((int*) self->value);
+            sprintf(s, "%d", i);
 		    break;
 		case CHAR:
-			char *a = (char*) self->value;
-            sprintf(s, "%c", *a);
+			c = *((char*) self->value);
+            sprintf(s, "%c", c);
 			break;
 		case STRING:
-			char **a = (char**) self->value;
-            sprintf(s, "%s", *a);
+		    str = *((char**) self->value);
+            sprintf(s, "%s", str);
 			break;
 		case FLOAT:
-			float *a = (float*) self->value;
-            sprintf(s, "%f", *a);
+			f = *((float*) self->value);
+            sprintf(s, "%f", f);
 			break;
 		case DOUBLE:
-			double *a = (double*) self->value;
-			sprintf(s, "%f", *a);
+			d = *((double*) self->value);
+			sprintf(s, "%f", d);
 			break;
 		case LONG:
-			long *a = (long*) self->value;
-			sprintf(s, "%ld", *a); 
+			l = *((long*) self->value);
+			sprintf(s, "%ld", l); 
 			break;
 		case LONGLONG:
-			long long *a = (long long*) self->value;
-			sprintf(s, "%lld", *a);
+			ll = *((long long*) self->value);
+			sprintf(s, "%lld", ll);
 			break;
 		default: return NULL;
 	}
     return s;
+}
+
+void list_clear(list* self) {
+    if (self->next == NULL) {
+        free(self);
+    }
+    else {
+        list* next = self->next;
+        free(self);
+        list_clear(next);
+    }
 }

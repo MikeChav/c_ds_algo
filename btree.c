@@ -1,36 +1,41 @@
 #include <stdio.h>
 #include "lib.h"
 
+typedef struct btree btree;
+
 boolean btree_insert(btree *self, void *value);
 boolean btree_contains(btree *self, void *value);
-void btree_delete(btree *self, void *value);
+//void btree_delete(btree *self, void *value);
 boolean btree_is_leaf(btree *self);
 void* btree_get_value(btree *self);
+void btree_clear(btree *self);
 
-typedef struct btree {
+struct btree {
 	void* value;
 	TYPE type;
 	struct btree* left;
 	struct btree* right;
 	boolean (*insert)(btree* self, void* value);
 	boolean (*contains)(btree* self, void* value);
-	void (*delete)(btree* self, void* value);
+//	void (*delete)(btree* self, void* value);
 	boolean (*is_leaf)(btree* self);
 	void* (*get_value)(btree* self);
+    void (*clear)(btree* self);
 	//todo continue adding definitions
-} btree;
+};
 
 btree* new_btree(void* value, TYPE type) {
-	btree *self = (btree*) malloc(sizeof(btree));
+	btree *self = malloc(sizeof(btree));
 	self->value = value;
 	self->type = type;
 	self->left = NULL;
 	self->right = NULL;
 	self->insert = btree_insert;
 	self->contains = btree_contains;
-	self->delete = btree_delete;
+//	self->delete = btree_delete;
 	self->is_leaf = btree_is_leaf;
 	self->get_value = btree_get_value;
+    self->clear = btree_clear;
 	return self;
 }
 
@@ -81,6 +86,16 @@ boolean btree_is_leaf(btree *self) {
 
 void* btree_get_value(btree *self) {
     return self->value;
+}
+
+void btree_clear(btree *self) {
+    btree* left = self->left;
+    btree* right = self->right;
+    free(self); //preserve stack space
+    if (left != NULL)
+        btree_clear(left);
+    if (right != NULL)
+        btree_clear(right);
 }
 
 /*
