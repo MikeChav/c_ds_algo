@@ -7,7 +7,7 @@ list* new_list(void *value, TYPE type);
 boolean list_insert(list* self, void* value);
 boolean list_contains(list* self, void* value);
 boolean list_delete(list* self, void* value);
-void list_sort(list* self);
+//void list_sort(list* self);
 void list_print(list* self);
 char* list_to_string(list* self);
 void list_clear(list* self);
