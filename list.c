@@ -9,7 +9,6 @@ boolean list_contains(list* self, void* value);
 boolean list_delete(list* self, void* value);
 void list_sort(list* self);
 void list_print(list* self);
-char* list_to_string(list* self);
 void list_clear(list* self);
 
 struct list {
@@ -22,13 +21,13 @@ struct list {
 	boolean (*delete)(list *self, void *value);
 	//void (*sort)(list *self);
 	void (*print)(list *self);
-	char* (*to_string)(list *self);
     void (*clear)(list* self);
 };
 
 list *new_list(void *value, TYPE type) {
 	list *ll = malloc(sizeof(list));
-	ll->value = value;
+	if (ll == NULL) return NULL;
+    ll->value = value;
 	ll->type = type;
 	ll->prev = NULL;
 	ll->next = NULL;
@@ -37,7 +36,6 @@ list *new_list(void *value, TYPE type) {
 	ll->delete = list_delete;
 	//ll->sort = list_sort;
 	ll->print = list_print;
-	ll->to_string = list_to_string;
     ll->clear = list_clear;
 	return ll;
 }
@@ -91,52 +89,11 @@ Arrays to_array(list *self) {
 */
 
 void list_print(list *self) {
-    for (list *curr; curr != NULL; curr = curr->next) {
-        printf("%s\n", curr->to_string(curr));
+    for (list* curr = self; curr != NULL; curr = curr->next) {
+        char *s = to_string(curr->value, curr->type);
+        printf("%s\n", s);
+        free(s);
     }
-}
-
-char* list_to_string(list *self) {
-    char *s = malloc(sizeof(char)*256);
-    int i;
-    char c;
-    char* str;
-    float f;
-    double d;
-    long l;
-    long long ll;
-	switch(self->type) {
-		case INT:
-		    i = *((int*) self->value);
-            sprintf(s, "%d", i);
-		    break;
-		case CHAR:
-			c = *((char*) self->value);
-            sprintf(s, "%c", c);
-			break;
-		case STRING:
-		    str = *((char**) self->value);
-            sprintf(s, "%s", str);
-			break;
-		case FLOAT:
-			f = *((float*) self->value);
-            sprintf(s, "%f", f);
-			break;
-		case DOUBLE:
-			d = *((double*) self->value);
-			sprintf(s, "%f", d);
-			break;
-		case LONG:
-			l = *((long*) self->value);
-			sprintf(s, "%ld", l); 
-			break;
-		case LONGLONG:
-			ll = *((long long*) self->value);
-			sprintf(s, "%lld", ll);
-			break;
-		default: return NULL;
-	}
-    return s;
 }
 
 void list_clear(list* self) {

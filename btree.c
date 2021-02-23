@@ -26,6 +26,7 @@ struct btree {
 
 btree* new_btree(void* value, TYPE type) {
 	btree *self = malloc(sizeof(btree));
+    if (self == NULL) return NULL;
 	self->value = value;
 	self->type = type;
 	self->left = NULL;
@@ -85,10 +86,12 @@ boolean btree_is_leaf(btree *self) {
 }
 
 void* btree_get_value(btree *self) {
+    if (self == NULL) return NULL;
     return self->value;
 }
 
 void btree_clear(btree *self) {
+    if (self == NULL) return;
     btree* left = self->left;
     btree* right = self->right;
     free(self); //preserve stack space

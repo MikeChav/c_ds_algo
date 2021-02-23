@@ -9,6 +9,8 @@
 #define boolean int
 #define COMPARISON_ERROR 1000
 #define BAD_REF 2000
+#define ALLOC_ERROR 3000
+#define STRC--> STRC->(STRC, 
 
 typedef enum Type {
 	INT,
@@ -20,6 +22,49 @@ typedef enum Type {
 	LONGLONG
 } TYPE;
 
+
+char* to_string(void *value, TYPE type) {
+    char *s = malloc(sizeof(char)*256);
+    int i;
+    char c;
+    char* str;
+    float f;
+    double d;
+    long l;
+    long long ll;
+	switch(type) {
+		case INT:
+		    i = *((int*) value);
+            sprintf(s, "%d", i);
+		    break;
+		case CHAR:
+			c = *((char*) value);
+            sprintf(s, "%c", c);
+			break;
+		case STRING:
+		    str = *((char**) value);
+            sprintf(s, "%s", str);
+			break;
+		case FLOAT:
+			f = *((float*) value);
+            sprintf(s, "%f", f);
+			break;
+		case DOUBLE:
+			d = *((double*) value);
+			sprintf(s, "%f", d);
+			break;
+		case LONG:
+			l = *((long*) value);
+			sprintf(s, "%ld", l); 
+			break;
+		case LONGLONG:
+			ll = *((long long*) value);
+			sprintf(s, "%lld", ll);
+			break;
+		default: return NULL;
+	}
+    return s;
+}
 int compare(void* v1, void* v2, TYPE type) {
     int ia, ib;
     char ca, cb;

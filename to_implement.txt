@@ -1,4 +1,3 @@
-ArrayList
 Heap
 HashSet
 HashMap
@@ -10,6 +9,7 @@ _________________ ADDED _________________
 Binary Tree
 LinkedList
 Stack
+ArrayList
 
 
 LEARN C MACROS and USE them to reduce code verbosity 
