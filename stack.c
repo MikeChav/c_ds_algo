@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include <stdint.h>
+
 #include "lib.h"
+
 typedef struct stack stack;
 
 void* stack_pop(stack* self);
-boolean stack_push(stack* self, void* val);
-boolean stack_is_empty(stack* self);
+void* stack_push(stack* self, void* val);
+boolean stack_empty(stack* self);
 void stack_clear(stack* self);
 
 struct stack {
@@ -12,13 +15,9 @@ struct stack {
     TYPE type;
     int capacity;
     int top;
-    void* (*pop)(stack* self);
-    boolean (*push)(stack* self, void* val);
-    boolean (*is_empty)(stack* self);
-    void (*clear)(stack* self);
 };
 
-stack* new_stack(void *val, TYPE type, int capacity) {
+stack* new_stack(TYPE type, int capacity) {
     stack *self = malloc(sizeof(stack));
     if (self == NULL) return NULL;
     self->array = malloc(sizeof(void*)*capacity);
@@ -26,44 +25,37 @@ stack* new_stack(void *val, TYPE type, int capacity) {
     for (int i = 0; i < capacity; i++) {
         self->array[i] = malloc(sizeof(uint64_t));
         if (self->array[i] == NULL) return NULL;
-    } 
-    self->array[0] = val;
+    }
     self->type = type;
-    self->capacity = capacity;
-    self->top = 0;
-    self->pop = stack_pop;
-    self->push = stack_push;
-    self->is_empty = stack_is_empty;
-    self->clear = stack_clear;
+    self->capacity = (capacity == 0) ? 1 : capacity;
+    self->top = -1;
     return self;
 }
 
-void* stack_pop(stack* self) {
+void* stack_pop(stack* self) { // pop on an empty stack is undefined behavior
     int top = self->top;
+    self->top--;
     if (self->top >= 0) {
-        self->top = top-1;
         return self->array[top];
     }
-    return NULL; //potential error that stack stores int and user believes zero is being returned. User should check if empty
+    return NULL; //NULL == (void *) 0 so user may think this is a value; should check if empty first
 }
 
-boolean stack_push(stack* self, void* val) {
-    if (self->top >= (self->capacity-1)) {
-        self->capacity = self->capacity*2;
-        void **new_arr = realloc(self->array, self->capacity*sizeof(void**));
-        if (new_arr == NULL) return false; 
+void* stack_push(stack* self, void* val) { // returns ref to inserted item
+    if (self->top == (self->capacity-1)) {
+        self->capacity *= 2;
+        self->array = realloc(self->array, self->capacity*sizeof(void**));
+        if (self->array == NULL) return false; 
         for (int i = self->capacity/2; i < self->capacity; i++) {
-            new_arr[i] = malloc(sizeof(uint64_t));
-            if (new_arr[i] == NULL) return false;
+            self->array[i] = malloc(sizeof(uint64_t));
+            if (self->array[i] == NULL) return NULL;
         }
-        self->array = new_arr;
     }
-    self->top = self->top +1;
-    self->array[self->top] = val;
-    return true;
+    self->array[++self->top] = val;
+    return &(self->array[self->top]);
 }
 
-boolean stack_is_empty(stack* self) {
+boolean stack_empty(stack* self) {
     return self->top < 0;
 }
 
@@ -74,3 +66,33 @@ void stack_clear(stack* self) {
     free(self->array);
     free(self);
 }
+
+/*
+Example usage
+
+int main() {
+    stack* s = new_stack(INT, 2);
+
+    stack_push(s, 3);
+    stack_push(s, 5);
+    stack_push(s, 2); // realloc should occur here
+
+    printf("%d\n", (*int)(stack_pop(s))); // expect 2
+    if (stack_empty(s)) {
+        printf("First check, stack is empty.\n"); // expect this message
+    }
+    else {
+        printf("First check, stack is not empty.\n");
+    }
+    stack_clear(s);
+    if (stack_empty(s)) {
+        printf("Second check, stack is empty.\n"); // expect this message
+    }
+    else {
+        printf("Second check, stack is not empty.\n");
+    }
+
+}
+
+
+*/

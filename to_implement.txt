@@ -1,15 +1,15 @@
-Heap
-HashSet
-HashMap
-Graph
-Iterator
-RB Tree or AVL Tree
+Todo:
+Doubly LinkedList // head/tail; easy once double is done
+Heap // array-based implementation
+Set // need hash function
+HashMap // need hash function
+Graph // easier with map
 
-_________________ ADDED _________________
+
+Done:
 Binary Tree
-LinkedList
+LinkedList // double (with prev/next)
 Stack
-ArrayList
 
 
 LEARN C MACROS and USE them to reduce code verbosity 
